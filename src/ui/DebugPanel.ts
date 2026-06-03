@@ -64,6 +64,14 @@ export class DebugPanel {
     assist.add(this.config.control, 'turnCoordinationAssist', 0, 0.6, 0.01).onChange(() => this.emit(onChange));
     assist.add(this.config.control, 'sideSlipAssist', 0, 1.5, 0.02).onChange(() => this.emit(onChange));
 
+    const autopilot = this.gui.addFolder('Control / Autopilot');
+    autopilot.add(this.config.autopilot, 'engageAirspeed', 16, 40, 0.5).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'engageAltitude', 0.5, 20, 0.5).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'pitchKp', 0.5, 5, 0.05).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'pitchKd', 0, 3, 0.05).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'rollKp', 0.5, 4, 0.05).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'rollKd', 0, 2, 0.05).onChange(() => this.emit(onChange));
+
     const engine = this.gui.addFolder('Engine');
     engine.add(this.config.engine, 'maxThrust', 2000, 6500, 50).onChange(() => this.emit(onChange));
     engine.add(this.config.engine, 'engineTimeConstant', 0.1, 2.5, 0.05).onChange(() => this.emit(onChange));
@@ -153,6 +161,7 @@ function mergeConfig(base: AircraftConfig, patch: Partial<AircraftConfig>): Airc
     surfaces: { ...next.surfaces, ...patch.surfaces },
     stall: { ...next.stall, ...patch.stall },
     control: { ...next.control, ...patch.control },
+    autopilot: { ...next.autopilot, ...patch.autopilot },
     ground: { ...next.ground, ...patch.ground },
     environment: { ...next.environment, ...patch.environment },
   };

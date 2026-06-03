@@ -92,6 +92,13 @@ export function createWorldState(config: AircraftConfig, mode: MissionMode = 'fr
         bankDegAtTouchdown: 0,
       },
     },
+    autopilot: {
+      enabled: true,
+      active: false,
+      targetPitch: config.autopilot.defaultClimbPitchRad,
+      targetRoll: 0,
+      mode: 'armed',
+    },
   };
 }
 

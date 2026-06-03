@@ -5,6 +5,7 @@ export type MenuActions = {
   toggleHud: () => void;
   toggleDebug: () => void;
   cycleCamera: () => void;
+  toggleAutopilot: () => void;
   saveReplay: () => void;
   playReplay: () => void;
   enableAudio: () => void;
@@ -20,6 +21,7 @@ export function createControlStrip(parent: HTMLElement, actions: MenuActions): H
     button('HUD', actions.toggleHud),
     button('Debug', actions.toggleDebug),
     button('Camera', actions.cycleCamera),
+    button('AP', actions.toggleAutopilot),
     button('Record', actions.saveReplay),
     button('Replay', actions.playReplay),
     button('Audio', actions.enableAudio),

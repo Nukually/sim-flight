@@ -1,6 +1,7 @@
 import type { AircraftConfig } from '../flight/AircraftConfig';
 import { cloneAircraftConfig } from '../flight/AircraftConfig';
 import { createWorldState } from '../flight/Aircraft';
+import { AutopilotSystem } from '../flight/AutopilotSystem';
 import { FlightControlSystem } from '../flight/FlightControlSystem';
 import { computeForcesAndMoments } from '../flight/FlightDynamics';
 import { resolveGroundContact } from '../flight/GroundDynamics';
@@ -20,6 +21,7 @@ export type WorldMetrics = {
 
 export class World {
   readonly controlSystem = new FlightControlSystem();
+  readonly autopilotSystem = new AutopilotSystem();
   state: WorldState;
   previousState: WorldState;
   config: AircraftConfig;
@@ -43,8 +45,16 @@ export class World {
     const start = performance.now();
     this.previousState = cloneWorldState(this.state);
     this.state.aircraft.engine.throttle = input.throttle;
-    this.state.aircraft.controls = this.controlSystem.update(
+    const controlInput = this.autopilotSystem.update(
       input,
+      this.state.autopilot,
+      this.state.aircraft.derived,
+      this.state.aircraft.angularVelocityBody,
+      dt,
+      this.config,
+    );
+    this.state.aircraft.controls = this.controlSystem.update(
+      controlInput,
       this.state.aircraft.controls,
       this.state.aircraft.derived,
       this.state.aircraft.angularVelocityBody,
@@ -115,6 +125,18 @@ export class World {
     );
     if (oldMass !== this.config.mass) {
       this.state.aircraft.derived.loadFactor = 1;
+    }
+  }
+
+  toggleAutopilot(): void {
+    this.state.autopilot.enabled = !this.state.autopilot.enabled;
+    if (!this.state.autopilot.enabled) {
+      this.state.autopilot.active = false;
+      this.state.autopilot.mode = 'off';
+    } else {
+      this.state.autopilot.mode = 'armed';
+      this.state.autopilot.targetPitch = this.config.autopilot.defaultClimbPitchRad;
+      this.state.autopilot.targetRoll = 0;
     }
   }
 

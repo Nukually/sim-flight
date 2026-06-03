@@ -37,8 +37,9 @@ Keyboard input uses a softened virtual stick by default. Hold keys briefly for s
 - `F3`: record replay
 - `F4`: play replay
 - `C`: camera mode
+- `P`: autopilot on/off
 
-For takeoff, use `3` for full throttle, wait until roughly `60 kt`, then hold a small amount of `S` until the aircraft lifts off. Avoid holding full pitch for more than a moment; the flight control assist works best with short corrections.
+For takeoff, use `3` for full throttle, wait until roughly `60 kt`, then hold a small amount of `S` until the aircraft lifts off. After liftoff, autopilot enters climb mode automatically: `S/W` adjust the target pitch instead of directly yanking the elevator, and releasing the key holds the current target smoothly.
 
 ## MVP Scope
 

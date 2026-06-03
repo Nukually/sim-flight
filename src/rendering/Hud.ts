@@ -22,6 +22,7 @@ export class Hud {
       ['verticalSpeed', 'V/S'],
       ['heading', 'Heading'],
       ['attitude', 'Pitch/Roll'],
+      ['autopilot', 'Autopilot'],
       ['power', 'Power'],
       ['trim', 'Trim/Flap'],
       ['aoa', 'AoA'],
@@ -67,6 +68,10 @@ export class Hud {
     this.set(
       'attitude',
       `${radToDeg(aircraft.derived.pitch).toFixed(0)} / ${radToDeg(aircraft.derived.roll).toFixed(0)} deg`,
+    );
+    this.set(
+      'autopilot',
+      `${state.autopilot.mode.toUpperCase()} ${radToDeg(state.autopilot.targetPitch).toFixed(0)} deg`,
     );
     this.set(
       'power',
@@ -128,6 +133,10 @@ export class DebugOverlay {
       row('Cl / Cm / Cn', `${c.Cl.toFixed(3)} / ${c.Cm.toFixed(3)} / ${c.Cn.toFixed(3)}`),
       row('Lift / Drag', `${f.lift.toFixed(0)} / ${f.drag.toFixed(0)} N`),
       row('Thrust / Weight', `${f.thrust.toFixed(0)} / ${f.weight.toFixed(0)} N`),
+      row(
+        'Autopilot',
+        `${state.autopilot.mode} pitch ${radToDeg(state.autopilot.targetPitch).toFixed(1)} roll ${radToDeg(state.autopilot.targetRoll).toFixed(1)}`,
+      ),
       row(
         'Angular vel',
         `${state.aircraft.angularVelocityBody.x.toFixed(2)}, ${state.aircraft.angularVelocityBody.y.toFixed(2)}, ${state.aircraft.angularVelocityBody.z.toFixed(2)}`,

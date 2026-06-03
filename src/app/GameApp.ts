@@ -59,6 +59,7 @@ export class GameApp {
       toggleHud: () => this.toggleHud(),
       toggleDebug: () => this.toggleDebug(),
       cycleCamera: () => this.renderer.cameraSystem.cycleMode(),
+      toggleAutopilot: () => this.world.toggleAutopilot(),
       saveReplay: () => this.toggleRecording(),
       playReplay: () => this.playReplayFromPanel(),
       enableAudio: () => void this.audio.enable(),
@@ -131,6 +132,9 @@ export class GameApp {
     }
     if (keyboard.consumeToggle('KeyC')) {
       this.renderer.cameraSystem.cycleMode();
+    }
+    if (keyboard.consumeToggle('KeyP')) {
+      this.world.toggleAutopilot();
     }
   }
 

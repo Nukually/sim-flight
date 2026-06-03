@@ -95,6 +95,14 @@ export type MissionState = {
   };
 };
 
+export type AutopilotState = {
+  enabled: boolean;
+  active: boolean;
+  targetPitch: number;
+  targetRoll: number;
+  mode: 'off' | 'armed' | 'climb';
+};
+
 export type WorldState = {
   time: number;
   tick: number;
@@ -103,6 +111,7 @@ export type WorldState = {
   environment: EnvironmentState;
   ground: GroundState;
   mission: MissionState;
+  autopilot: AutopilotState;
 };
 
 export function cloneWorldState(state: WorldState): WorldState {

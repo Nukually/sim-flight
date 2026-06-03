@@ -74,6 +74,23 @@ export type AircraftConfig = {
     turnCoordinationAssist: number;
     sideSlipAssist: number;
   };
+  autopilot: {
+    engageAirspeed: number;
+    engageAltitude: number;
+    defaultClimbPitchRad: number;
+    minPitchRad: number;
+    maxPitchRad: number;
+    maxRollRad: number;
+    pitchAdjustRateRadPerSec: number;
+    rollAdjustRateRadPerSec: number;
+    rollReturnRateRadPerSec: number;
+    pitchKp: number;
+    pitchKd: number;
+    rollKp: number;
+    rollKd: number;
+    maxPitchCommand: number;
+    maxRollCommand: number;
+  };
   ground: {
     wheelRadius: number;
     springK: number;

@@ -45,6 +45,7 @@ describe('standard MVP flight cards', () => {
 
   it('enters a stall under low-speed high-alpha pull and can recover after unloading', () => {
     const world = new World(defaultAircraftConfig);
+    world.toggleAutopilot();
     world.state.aircraft.position.y = 650;
     world.state.aircraft.velocityWorld.z = 32;
     world.state.aircraft.derived.isGrounded = false;
@@ -114,6 +115,8 @@ function runFor(world: World, seconds: number, inputForTick: () => PlayerInput):
 
 function createAirborneWorld(): World {
   const world = new World(defaultAircraftConfig);
+  world.state.autopilot.enabled = false;
+  world.state.autopilot.mode = 'off';
   world.state.aircraft.position = vec3(0, 500, -200);
   world.state.aircraft.rotation = quatIdentity();
   world.state.aircraft.velocityWorld = vec3(0, 0, 45);
