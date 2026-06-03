@@ -46,6 +46,50 @@ describe('aerodynamics and propulsion', () => {
     expect(Math.abs(coefficients.Cn)).toBeLessThan(1e-8);
   });
 
+  it('models adverse yaw from aileron deflection', () => {
+    const leftRoll = computeAerodynamicCoefficients(
+      {
+        alpha: degToRad(5),
+        beta: 0,
+        airspeed: 45,
+        p: 0,
+        q: 0,
+        r: 0,
+        controls: {
+          elevator: 0,
+          aileron: -0.2,
+          rudder: 0,
+          flap: 0,
+          trim: 0,
+          brake: 0,
+        },
+      },
+      defaultAircraftConfig,
+    );
+    const rightRoll = computeAerodynamicCoefficients(
+      {
+        alpha: degToRad(5),
+        beta: 0,
+        airspeed: 45,
+        p: 0,
+        q: 0,
+        r: 0,
+        controls: {
+          elevator: 0,
+          aileron: 0.2,
+          rudder: 0,
+          flap: 0,
+          trim: 0,
+          brake: 0,
+        },
+      },
+      defaultAircraftConfig,
+    );
+
+    expect(Math.sign(leftRoll.Cl)).toBe(-Math.sign(leftRoll.Cn));
+    expect(Math.sign(rightRoll.Cl)).toBe(-Math.sign(rightRoll.Cn));
+  });
+
   it('raises thrust with throttle and loses propeller effectiveness at speed', () => {
     const idle = computeTargetThrust(0.1, 20, defaultAircraftConfig);
     const fullLowSpeed = computeTargetThrust(1, 20, defaultAircraftConfig);

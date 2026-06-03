@@ -3,7 +3,7 @@ import type { AircraftState, EnvironmentState, GroundState } from '../simulation
 import { computeAerodynamicCoefficients, isStalling } from './Aerodynamics';
 import { updateEngine } from './Propulsion';
 import { inverseRotateVecByQuat, rotateVecByQuat, toEuler } from '../math/Quat';
-import { add, dot, length, scale, sub, type Vec3, vec3 } from '../math/Vec3';
+import { add, cross, dot, length, normalize, scale, sub, type Vec3, vec3 } from '../math/Vec3';
 import { radToDeg } from '../math/Units';
 
 export type ForcesAndMoments = {
@@ -54,11 +54,12 @@ export function computeForcesAndMoments(
   aircraft.engine.thrust = thrustState.thrust;
   aircraft.engine.rpm = thrustState.rpm;
 
-  const forceBody = vec3(
-    side,
-    lift,
-    thrustState.thrust - drag,
-  );
+  const velocityDirBody = airspeed > 1 ? normalize(bodyVelocity) : vec3(0, 0, 1);
+  const dragBody = scale(velocityDirBody, -drag);
+  const liftDirBody = normalize(cross(velocityDirBody, vec3(1, 0, 0)));
+  const sideBody = vec3(side, 0, 0);
+  const thrustBody = vec3(0, 0, thrustState.thrust);
+  const forceBody = add(add(add(dragBody, scale(liftDirBody, lift)), sideBody), thrustBody);
   const forceWorld = add(rotateVecByQuat(aircraft.rotation, forceBody), scale(environment.gravity, aircraft.mass));
   const momentBody = vec3(
     qbar * config.wingArea * config.meanChord * coefficients.Cm,

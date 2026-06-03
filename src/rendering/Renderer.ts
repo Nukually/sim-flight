@@ -13,7 +13,7 @@ export class Renderer {
 
   constructor(readonly canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true, {
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
       stencil: true,
       antialias: true,
     });

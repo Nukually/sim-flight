@@ -19,15 +19,19 @@ export type AircraftConfig = {
     CDBrake: number;
     CYBeta: number;
     CYRudder: number;
+    CYp: number;
+    CYr: number;
     Cm0: number;
     CmAlpha: number;
     CmElevator: number;
     Cmq: number;
     ClBeta: number;
     ClAileron: number;
+    ClRudder: number;
     Clp: number;
     CnBeta: number;
     CnRudder: number;
+    CnAileron: number;
     Cnr: number;
   };
   engine: {
@@ -53,11 +57,22 @@ export type AircraftConfig = {
   control: {
     keyboardPressRate: number;
     keyboardReturnRate: number;
+    keyboardPitchLimit: number;
+    keyboardRollLimit: number;
+    keyboardYawLimit: number;
     gamepadDeadzone: number;
     gamepadExpo: number;
+    surfaceExpo: number;
     highSpeedSensitivityStart: number;
     highSpeedSensitivityEnd: number;
     minHighSpeedSensitivity: number;
+    pitchDampingAssist: number;
+    pitchAttitudeAssist: number;
+    rollDampingAssist: number;
+    rollLevelAssist: number;
+    yawDamperAssist: number;
+    turnCoordinationAssist: number;
+    sideSlipAssist: number;
   };
   ground: {
     wheelRadius: number;

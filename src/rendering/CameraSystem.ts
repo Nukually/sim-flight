@@ -16,8 +16,8 @@ export class CameraSystem {
 
   constructor(scene: Scene) {
     this.camera = new FreeCamera('camera', this.smoothedPosition, scene);
-    this.camera.minZ = 0.1;
-    this.camera.maxZ = 8000;
+    this.camera.minZ = 0.5;
+    this.camera.maxZ = 5000;
     this.camera.fov = 0.88;
   }
 

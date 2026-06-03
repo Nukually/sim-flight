@@ -98,6 +98,16 @@ export function normalizeQuat(q: Quat): Quat {
   };
 }
 
+export function lerpQuat(a: Quat, b: Quat, t: number): Quat {
+  const sign = a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z < 0 ? -1 : 1;
+  return normalizeQuat({
+    w: a.w + (b.w * sign - a.w) * t,
+    x: a.x + (b.x * sign - a.x) * t,
+    y: a.y + (b.y * sign - a.y) * t,
+    z: a.z + (b.z * sign - a.z) * t,
+  });
+}
+
 export function conjugateQuat(q: Quat): Quat {
   return { w: q.w, x: -q.x, y: -q.y, z: -q.z };
 }

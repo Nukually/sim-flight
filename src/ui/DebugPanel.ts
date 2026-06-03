@@ -37,12 +37,32 @@ export class DebugPanel {
 
     const roll = this.gui.addFolder('Aero / Roll');
     roll.add(this.config.aero, 'ClAileron', 0.05, 0.5, 0.01).onChange(() => this.emit(onChange));
+    roll.add(this.config.aero, 'ClRudder', -0.12, 0.12, 0.005).onChange(() => this.emit(onChange));
     roll.add(this.config.aero, 'Clp', -1.3, -0.1, 0.01).onChange(() => this.emit(onChange));
 
     const yaw = this.gui.addFolder('Aero / Yaw');
+    yaw.add(this.config.aero, 'CYBeta', -1.6, -0.2, 0.02).onChange(() => this.emit(onChange));
+    yaw.add(this.config.aero, 'CYRudder', 0, 0.45, 0.01).onChange(() => this.emit(onChange));
     yaw.add(this.config.aero, 'CnBeta', 0, 0.35, 0.01).onChange(() => this.emit(onChange));
     yaw.add(this.config.aero, 'CnRudder', -0.3, 0.2, 0.01).onChange(() => this.emit(onChange));
+    yaw.add(this.config.aero, 'CnAileron', -0.12, 0.08, 0.005).onChange(() => this.emit(onChange));
     yaw.add(this.config.aero, 'Cnr', -0.6, -0.02, 0.01).onChange(() => this.emit(onChange));
+
+    const control = this.gui.addFolder('Control / Keyboard Assist');
+    control.add(this.config.control, 'keyboardPressRate', 0.25, 2.5, 0.05).onChange(() => this.emit(onChange));
+    control.add(this.config.control, 'keyboardReturnRate', 0.5, 4, 0.05).onChange(() => this.emit(onChange));
+    control.add(this.config.control, 'keyboardPitchLimit', 0.2, 1, 0.01).onChange(() => this.emit(onChange));
+    control.add(this.config.control, 'keyboardRollLimit', 0.2, 1, 0.01).onChange(() => this.emit(onChange));
+    control.add(this.config.control, 'surfaceExpo', 1, 2.5, 0.05).onChange(() => this.emit(onChange));
+
+    const assist = this.gui.addFolder('Control / Stability Assist');
+    assist.add(this.config.control, 'pitchDampingAssist', 0, 1.2, 0.02).onChange(() => this.emit(onChange));
+    assist.add(this.config.control, 'pitchAttitudeAssist', 0, 0.6, 0.01).onChange(() => this.emit(onChange));
+    assist.add(this.config.control, 'rollDampingAssist', 0, 1.2, 0.02).onChange(() => this.emit(onChange));
+    assist.add(this.config.control, 'rollLevelAssist', 0, 1.5, 0.02).onChange(() => this.emit(onChange));
+    assist.add(this.config.control, 'yawDamperAssist', 0, 1.2, 0.02).onChange(() => this.emit(onChange));
+    assist.add(this.config.control, 'turnCoordinationAssist', 0, 0.6, 0.01).onChange(() => this.emit(onChange));
+    assist.add(this.config.control, 'sideSlipAssist', 0, 1.5, 0.02).onChange(() => this.emit(onChange));
 
     const engine = this.gui.addFolder('Engine');
     engine.add(this.config.engine, 'maxThrust', 2000, 6500, 50).onChange(() => this.emit(onChange));

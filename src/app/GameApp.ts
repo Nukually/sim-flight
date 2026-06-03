@@ -66,7 +66,7 @@ export class GameApp {
     });
     this.loop = new GameLoop({
       fixedUpdate: (dt) => this.fixedUpdate(dt),
-      render: (dt, fps) => this.render(dt, fps),
+      render: (dt, fps, alpha) => this.render(dt, fps, alpha),
     });
   }
 
@@ -101,8 +101,10 @@ export class GameApp {
     }
   }
 
-  private render(dt: number, fps: number): void {
-    const state = this.replayActive ? this.replay.currentState() ?? this.world.state : this.world.state;
+  private render(dt: number, fps: number, alpha: number): void {
+    const state = this.replayActive
+      ? this.replay.currentState() ?? this.world.state
+      : this.world.interpolatedSnapshot(alpha);
     this.renderer.render(state, this.input.consumeOrbitDelta(), dt);
     this.hud.update(state);
     this.debugOverlay.update(state, this.world.metrics, fps);

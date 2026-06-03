@@ -38,14 +38,14 @@ export function buildScene(scene: Scene): void {
   const lineMat = new StandardMaterial('runway-line-mat', scene);
   lineMat.diffuseColor = new Color3(0.95, 0.95, 0.85);
   for (let z = -720; z <= 1120; z += 120) {
-    const stripe = MeshBuilder.CreateBox(`centerline-${z}`, { width: 1.3, height: 0.055, depth: 44 }, scene);
-    stripe.position.set(0, 0.07, z);
+    const stripe = MeshBuilder.CreateBox(`centerline-${z}`, { width: 1.3, height: 0.014, depth: 44 }, scene);
+    stripe.position.set(0, 0.062, z);
     stripe.material = lineMat;
   }
 
   for (const x of [-23.5, 23.5]) {
-    const edge = MeshBuilder.CreateBox(`runway-edge-${x}`, { width: 0.55, height: 0.056, depth: 2000 }, scene);
-    edge.position.set(x, 0.075, 200);
+    const edge = MeshBuilder.CreateBox(`runway-edge-${x}`, { width: 0.55, height: 0.014, depth: 2000 }, scene);
+    edge.position.set(x, 0.063, 200);
     edge.material = lineMat;
   }
 

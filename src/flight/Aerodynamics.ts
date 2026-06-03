@@ -41,10 +41,15 @@ export function computeAerodynamicCoefficients(
     config.aero.CDGear +
     config.aero.CDBrake * controls.brake +
     stallDragPenalty(alpha, config);
-  const CY = config.aero.CYBeta * beta + config.aero.CYRudder * controls.rudder * liftEfficiency;
+  const CY =
+    config.aero.CYBeta * beta +
+    config.aero.CYRudder * controls.rudder * liftEfficiency +
+    config.aero.CYp * pHat +
+    config.aero.CYr * rHat;
   const Cl =
     config.aero.ClBeta * beta +
     config.aero.ClAileron * controls.aileron * liftEfficiency +
+    config.aero.ClRudder * controls.rudder * liftEfficiency +
     config.aero.Clp * pHat;
   const Cm =
     config.aero.Cm0 +
@@ -54,6 +59,7 @@ export function computeAerodynamicCoefficients(
   const Cn =
     config.aero.CnBeta * beta +
     config.aero.CnRudder * controls.rudder * liftEfficiency +
+    config.aero.CnAileron * controls.aileron * liftEfficiency +
     config.aero.Cnr * rHat;
   return { CL, CD, CY, Cl, Cm, Cn };
 }

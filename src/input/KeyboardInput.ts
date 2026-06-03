@@ -28,6 +28,7 @@ export class KeyboardInput {
       this.pressed.has('KeyS') || this.pressed.has('ArrowUp'),
       dt,
       config,
+      config.control.keyboardPitchLimit,
     );
     this.roll = this.updateAxis(
       this.roll,
@@ -35,6 +36,7 @@ export class KeyboardInput {
       this.pressed.has('KeyD') || this.pressed.has('ArrowRight'),
       dt,
       config,
+      config.control.keyboardRollLimit,
     );
     this.yaw = this.updateAxis(
       this.yaw,
@@ -42,6 +44,7 @@ export class KeyboardInput {
       this.pressed.has('KeyE'),
       dt,
       config,
+      config.control.keyboardYawLimit,
     );
     const throttleStep = dt * 0.55;
     if (this.pressed.has('Equal') || this.pressed.has('NumpadAdd')) {
@@ -90,8 +93,9 @@ export class KeyboardInput {
     positive: boolean,
     dt: number,
     config: AircraftConfig,
+    limit: number,
   ): number {
-    const target = positive ? 1 : negative ? -1 : 0;
+    const target = positive ? limit : negative ? -limit : 0;
     const rate = target === 0 ? config.control.keyboardReturnRate : config.control.keyboardPressRate;
     return moveToward(axis, target, rate * dt);
   }

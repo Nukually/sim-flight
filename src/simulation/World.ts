@@ -8,7 +8,8 @@ import { integrateAircraft } from '../flight/Integrator';
 import type { PlayerInput } from '../input/InputTypes';
 import { airDensityAtAltitude } from '../environment/Atmosphere';
 import { updateWind } from '../environment/WindField';
-import { vec3 } from '../math/Vec3';
+import { lerpQuat } from '../math/Quat';
+import { lerpVec3, vec3 } from '../math/Vec3';
 import type { MissionMode, WorldState } from './WorldState';
 import { cloneWorldState } from './WorldState';
 
@@ -20,6 +21,7 @@ export type WorldMetrics = {
 export class World {
   readonly controlSystem = new FlightControlSystem();
   state: WorldState;
+  previousState: WorldState;
   config: AircraftConfig;
   metrics: WorldMetrics = {
     lastPhysicsCostMs: 0,
@@ -29,19 +31,23 @@ export class World {
   constructor(config: AircraftConfig, initialState?: WorldState) {
     this.config = cloneAircraftConfig(config);
     this.state = initialState ? cloneWorldState(initialState) : createWorldState(this.config);
+    this.previousState = cloneWorldState(this.state);
   }
 
   reset(mode: MissionMode = this.state.mission.mode): void {
     this.state = createWorldState(this.config, mode);
+    this.previousState = cloneWorldState(this.state);
   }
 
   fixedUpdate(input: PlayerInput, dt: number): void {
     const start = performance.now();
+    this.previousState = cloneWorldState(this.state);
     this.state.aircraft.engine.throttle = input.throttle;
     this.state.aircraft.controls = this.controlSystem.update(
       input,
       this.state.aircraft.controls,
-      this.state.aircraft.derived.airspeed,
+      this.state.aircraft.derived,
+      this.state.aircraft.angularVelocityBody,
       dt,
       this.config,
     );
@@ -70,6 +76,32 @@ export class World {
 
   snapshot(): WorldState {
     return cloneWorldState(this.state);
+  }
+
+  interpolatedSnapshot(alpha: number): WorldState {
+    const t = Math.max(0, Math.min(1, alpha));
+    const state = cloneWorldState(this.state);
+    state.aircraft.position = lerpVec3(
+      this.previousState.aircraft.position,
+      this.state.aircraft.position,
+      t,
+    );
+    state.aircraft.velocityWorld = lerpVec3(
+      this.previousState.aircraft.velocityWorld,
+      this.state.aircraft.velocityWorld,
+      t,
+    );
+    state.aircraft.angularVelocityBody = lerpVec3(
+      this.previousState.aircraft.angularVelocityBody,
+      this.state.aircraft.angularVelocityBody,
+      t,
+    );
+    state.aircraft.rotation = lerpQuat(
+      this.previousState.aircraft.rotation,
+      this.state.aircraft.rotation,
+      t,
+    );
+    return state;
   }
 
   applyConfig(config: AircraftConfig): void {

@@ -3,7 +3,7 @@ import { FixedStepScheduler } from '../simulation/FixedStepScheduler';
 
 export type GameLoopHandlers = {
   fixedUpdate: (dt: number) => void;
-  render: (dt: number, fps: number) => void;
+  render: (dt: number, fps: number, alpha: number) => void;
 };
 
 export class GameLoop {
@@ -43,7 +43,7 @@ export class GameLoop {
     this.lastTime = time;
     this.fps = this.fps * 0.9 + (dt > 0 ? (1 / dt) * 0.1 : 0);
     this.scheduler.update(dt, () => this.handlers.fixedUpdate(FIXED_DT));
-    this.handlers.render(dt, this.fps);
+    this.handlers.render(dt, this.fps, this.scheduler.getAlpha());
     this.frameHandle = requestAnimationFrame(this.frame);
   };
 }
