@@ -1,0 +1,83 @@
+import { degToRad } from '../math/Units';
+import type { AircraftConfig } from '../flight/AircraftConfig';
+
+export const FIXED_DT = 1 / 120;
+
+export const defaultAircraftConfig: AircraftConfig = {
+  mass: 1050,
+  wingArea: 16.2,
+  wingSpan: 11,
+  meanChord: 1.5,
+  inertia: {
+    ixx: 1300,
+    iyy: 1800,
+    izz: 2500,
+  },
+  aero: {
+    CL0: 0.25,
+    CLAlpha: 5.2,
+    CLMaxAfterStall: 0.75,
+    CLElevator: 0.45,
+    CLFlap: 0.55,
+    CD0: 0.03,
+    inducedDragK: 0.045,
+    CDFlap: 0.12,
+    CDGear: 0.02,
+    CDBrake: 0.08,
+    CYBeta: -0.9,
+    CYRudder: 0.22,
+    Cm0: 0.02,
+    CmAlpha: 1.1,
+    CmElevator: -1.2,
+    Cmq: -8,
+    ClBeta: -0.08,
+    ClAileron: 0.18,
+    Clp: -0.5,
+    CnBeta: 0.12,
+    CnRudder: -0.1,
+    Cnr: -0.2,
+  },
+  engine: {
+    maxThrust: 4200,
+    engineTimeConstant: 0.8,
+    maxEffectiveAirspeed: 90,
+  },
+  surfaces: {
+    elevatorMaxRad: degToRad(25),
+    aileronMaxRad: degToRad(20),
+    rudderMaxRad: degToRad(30),
+    flapMaxRad: degToRad(30),
+    elevatorRateRadPerSec: degToRad(55),
+    aileronRateRadPerSec: degToRad(75),
+    rudderRateRadPerSec: degToRad(65),
+    flapRateRadPerSec: degToRad(12),
+    trimGainRad: degToRad(13),
+  },
+  stall: {
+    alphaStallRad: degToRad(15),
+    alphaFullStallRad: degToRad(25),
+  },
+  control: {
+    keyboardPressRate: 2.5,
+    keyboardReturnRate: 3.5,
+    gamepadDeadzone: 0.08,
+    gamepadExpo: 1.8,
+    highSpeedSensitivityStart: 45,
+    highSpeedSensitivityEnd: 85,
+    minHighSpeedSensitivity: 0.42,
+  },
+  ground: {
+    wheelRadius: 0.36,
+    springK: 90000,
+    damperC: 9000,
+    rollingFriction: 0.018,
+    brakeFriction: 0.62,
+    sideFriction: 9.5,
+    crashVerticalSpeed: 5.5,
+  },
+  environment: {
+    windX: 0,
+    windY: 0,
+    windZ: 0,
+  },
+};
