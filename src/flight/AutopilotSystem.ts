@@ -4,6 +4,11 @@ import { clamp, moveToward } from '../math/Scalar';
 import type { Vec3 } from '../math/Vec3';
 import type { AutopilotState, AircraftDerivedState } from '../simulation/WorldState';
 
+const normalPitchUpRatio = 0.28;
+const maxPitchDownRatio = 0.16;
+const climbRateFromPitch = 0.3;
+const verticalSpeedGain = 0.08;
+
 export class AutopilotSystem {
   update(
     input: PlayerInput,
@@ -62,11 +67,20 @@ export class AutopilotSystem {
       );
     }
 
+    const targetVerticalSpeed = clamp(
+      derived.airspeed * Math.sin(state.targetPitch) * climbRateFromPitch,
+      -1.2,
+      1.8,
+    );
+    const descentT = clamp((-derived.verticalSpeed - 0.8) / 1.8, 0, 1);
+    const maxPitchUpCommand = config.autopilot.maxPitchCommand *
+      (normalPitchUpRatio + (1 - normalPitchUpRatio) * descentT);
     const pitchCommand = clamp(
       (state.targetPitch - derived.pitch) * config.autopilot.pitchKp -
-        angularVelocityBody.x * config.autopilot.pitchKd,
-      -config.autopilot.maxPitchCommand,
-      config.autopilot.maxPitchCommand,
+        angularVelocityBody.x * config.autopilot.pitchKd +
+        (targetVerticalSpeed - derived.verticalSpeed) * verticalSpeedGain,
+      -config.autopilot.maxPitchCommand * maxPitchDownRatio,
+      maxPitchUpCommand,
     );
     const rollCommand = clamp(
       (state.targetRoll - derived.roll) * config.autopilot.rollKp -
