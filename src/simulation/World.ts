@@ -11,7 +11,7 @@ import { airDensityAtAltitude } from '../environment/Atmosphere';
 import { updateWind } from '../environment/WindField';
 import { lerpQuat } from '../math/Quat';
 import { lerpVec3, vec3 } from '../math/Vec3';
-import type { MissionMode, WorldState } from './WorldState';
+import type { MissionMode, Waypoint, WorldState } from './WorldState';
 import { cloneWorldState } from './WorldState';
 
 export type WorldMetrics = {
@@ -48,6 +48,8 @@ export class World {
     const controlInput = this.autopilotSystem.update(
       input,
       this.state.autopilot,
+      this.state.navigation,
+      this.state.aircraft.position,
       this.state.aircraft.derived,
       this.state.aircraft.angularVelocityBody,
       dt,
@@ -137,7 +139,21 @@ export class World {
       this.state.autopilot.mode = 'armed';
       this.state.autopilot.targetPitch = this.config.autopilot.defaultClimbPitchRad;
       this.state.autopilot.targetRoll = 0;
+      this.state.autopilot.targetHeading = 0;
     }
+  }
+
+  setWaypoints(waypoints: Waypoint[]): void {
+    this.state.navigation.waypoints = waypoints.map((waypoint, index) => ({
+      ...waypoint,
+      label: waypoint.label || `WP${index + 1}`,
+    }));
+    this.state.navigation.activeIndex = 0;
+    this.state.navigation.reachedCount = 0;
+  }
+
+  clearWaypoints(): void {
+    this.setWaypoints([]);
   }
 
   private evaluateMission(): void {

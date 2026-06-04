@@ -27,7 +27,7 @@ describe('takeoff autopilot', () => {
 
     runFor(world, 3, () => ({ ...neutralInput, throttle: 0.75 }));
 
-    expect(targetAfterPull).toBeGreaterThan(targetAtEngage + degToRad(2));
+    expect(targetAfterPull).toBeGreaterThan(targetAtEngage + degToRad(1.2));
     expect(world.state.autopilot.targetPitch).toBeCloseTo(targetAfterPull, 6);
     expect(world.state.aircraft.derived.verticalSpeed).toBeGreaterThan(-3.5);
   });
@@ -46,43 +46,69 @@ describe('takeoff autopilot', () => {
 
   it('settles into a steady climb instead of a pitch roller coaster', () => {
     const world = new World(defaultAircraftConfig);
-    const settledPitchSamples: number[] = [];
+    const finalPitchSamples: number[] = [];
     let wasAirborne = false;
     let firstAirborneTime = 0;
     let sawStall = false;
 
     runFor(world, 75, () => {
       const airspeed = world.state.aircraft.derived.airspeed;
-      const rotate = airspeed > 31 && !wasAirborne;
-      const flap = airspeed > 28 ? 0.18 : 0;
-      if (!wasAirborne && !world.state.aircraft.derived.isGrounded && world.state.aircraft.derived.altitude > 2) {
+      const rotate = airspeed > 55 && !wasAirborne;
+      const flap = airspeed > 35 ? 0.35 : 0;
+      if (!wasAirborne && !world.state.aircraft.derived.isGrounded && world.state.aircraft.derived.altitude > 4) {
         wasAirborne = true;
         firstAirborneTime = world.state.time;
       }
-      if (wasAirborne && world.state.time > firstAirborneTime + 10) {
-        settledPitchSamples.push(radToDeg(world.state.aircraft.derived.pitch));
+      if (wasAirborne && world.state.time > firstAirborneTime + 35) {
+        finalPitchSamples.push(radToDeg(world.state.aircraft.derived.pitch));
       }
       sawStall ||= world.state.aircraft.derived.isStalling;
-      return { ...neutralInput, throttle: 1, pitch: rotate ? 0.28 : 0, flap, trim: 0.08 };
+      return { ...neutralInput, throttle: 1, pitch: rotate ? 0.25 : 0, flap, trim: 0.08 };
     });
 
-    const pitchRange = Math.max(...settledPitchSamples) - Math.min(...settledPitchSamples);
+    const pitchRange = Math.max(...finalPitchSamples) - Math.min(...finalPitchSamples);
     expect(wasAirborne).toBe(true);
     expect(world.state.mission.hasCrashed).toBe(false);
     expect(sawStall).toBe(false);
-    expect(world.state.aircraft.derived.altitude).toBeGreaterThan(30);
-    expect(pitchRange).toBeLessThan(6);
+    expect(world.state.aircraft.derived.altitude).toBeGreaterThan(300);
+    expect(pitchRange).toBeLessThan(4);
+  });
+
+  it('tracks an active waypoint with bank command in nav mode', () => {
+    const world = createAirborneWorld();
+    world.setWaypoints([{ x: 1200, z: 1200, label: 'WP1' }]);
+    world.fixedUpdate({ ...neutralInput, throttle: 0.75 }, FIXED_DT);
+
+    expect(world.state.autopilot.mode).toBe('nav');
+    expect(world.state.autopilot.targetRoll).toBeGreaterThan(degToRad(5));
+    expect(world.state.navigation.activeIndex).toBe(0);
+  });
+
+  it('advances to the next waypoint after reaching the active one', () => {
+    const world = createAirborneWorld();
+    world.state.aircraft.position = vec3(95, 120, 0);
+    world.setWaypoints([
+      { x: 100, z: 0, label: 'WP1' },
+      { x: -900, z: 800, label: 'WP2' },
+    ]);
+
+    world.fixedUpdate({ ...neutralInput, throttle: 0.75 }, FIXED_DT);
+
+    expect(world.state.autopilot.mode).toBe('nav');
+    expect(world.state.navigation.activeIndex).toBe(1);
+    expect(world.state.navigation.reachedCount).toBe(1);
+    expect(world.state.autopilot.targetRoll).toBeLessThan(-degToRad(5));
   });
 });
 
 function createAirborneWorld(): World {
   const world = new World(defaultAircraftConfig);
-  world.state.aircraft.position = vec3(0, 35, -200);
+  world.state.aircraft.position = vec3(0, 120, -200);
   world.state.aircraft.rotation = quatFromForwardUp(vec3(0, 0.08, 1), vec3(0, 1, 0));
-  world.state.aircraft.velocityWorld = vec3(0, 1.5, 35);
+  world.state.aircraft.velocityWorld = vec3(0, 2, 62);
   world.state.aircraft.derived.isGrounded = false;
-  world.state.aircraft.derived.altitude = 35;
-  world.state.aircraft.derived.airspeed = 35;
+  world.state.aircraft.derived.altitude = 120;
+  world.state.aircraft.derived.airspeed = 62;
   world.state.aircraft.derived.pitch = degToRad(4.5);
   return world;
 }

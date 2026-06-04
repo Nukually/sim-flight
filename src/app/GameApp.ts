@@ -11,6 +11,7 @@ import { World } from '../simulation/World';
 import type { MissionMode } from '../simulation/WorldState';
 import { DebugPanel } from '../ui/DebugPanel';
 import { createControlStrip } from '../ui/Menu';
+import { NavigationPanel } from '../ui/NavigationPanel';
 
 export class GameApp {
   private readonly shell: HTMLDivElement;
@@ -21,6 +22,7 @@ export class GameApp {
   private readonly hud: Hud;
   private readonly debugOverlay: DebugOverlay;
   private readonly debugPanel: DebugPanel;
+  private readonly navigationPanel: NavigationPanel;
   private readonly recorder = new Recorder();
   private readonly replay = new ReplayRunner();
   private readonly audio = new AudioSystem();
@@ -51,6 +53,10 @@ export class GameApp {
     this.debugPanel = new DebugPanel(this.config, (config) => {
       this.config = config;
       this.world.applyConfig(config);
+    });
+    this.navigationPanel = new NavigationPanel(this.shell, {
+      setWaypoints: (waypoints) => this.world.setWaypoints(waypoints),
+      clearWaypoints: () => this.world.clearWaypoints(),
     });
     this.landingPanel = this.createLandingPanel();
     this.replayPanel = this.createReplayPanel();
@@ -108,6 +114,7 @@ export class GameApp {
       : this.world.interpolatedSnapshot(alpha);
     this.renderer.render(state, this.input.consumeOrbitDelta(), dt);
     this.hud.update(state);
+    this.navigationPanel.update(state);
     this.debugOverlay.update(state, this.world.metrics, fps);
     this.audio.update(state);
     this.updateLandingPanel(state.mission.mode);

@@ -2,8 +2,9 @@ import type { AircraftConfig } from './AircraftConfig';
 import { clamp } from '../math/Scalar';
 
 export function computeTargetThrust(throttle: number, airspeed: number, config: AircraftConfig): number {
-  const speedFactor = clamp(1 - airspeed / config.engine.maxEffectiveAirspeed, 0.15, 1);
-  return config.engine.maxThrust * clamp(throttle, 0, 1) * speedFactor;
+  const speedT = clamp(airspeed / config.engine.maxEffectiveAirspeed, 0, 1);
+  const speedFactor = 1 - (1 - config.engine.thrustLapseAtMaxSpeed) * speedT;
+  return config.engine.engineCount * config.engine.maxThrust * clamp(throttle, 0, 1) * speedFactor;
 }
 
 export function updateEngine(
@@ -16,6 +17,8 @@ export function updateEngine(
   const targetThrust = computeTargetThrust(throttle, airspeed, config);
   const response = 1 - Math.exp(-dt / config.engine.engineTimeConstant);
   const thrust = currentThrust + (targetThrust - currentThrust) * response;
-  const rpm = 800 + 1900 * throttle + 250 * (thrust / Math.max(1, config.engine.maxThrust));
+  const totalMaxThrust = config.engine.engineCount * config.engine.maxThrust;
+  const spool = clamp(thrust / Math.max(1, totalMaxThrust), 0, 1);
+  const rpm = config.engine.idleRpm + (config.engine.maxRpm - config.engine.idleRpm) * Math.max(throttle, spool);
   return { thrust, rpm };
 }

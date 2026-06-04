@@ -1,18 +1,20 @@
 import type { AircraftConfig } from './AircraftConfig';
 import type { PlayerInput } from '../input/InputTypes';
-import { clamp, moveToward } from '../math/Scalar';
+import { clamp, moveToward, smoothstep } from '../math/Scalar';
 import type { Vec3 } from '../math/Vec3';
-import type { AutopilotState, AircraftDerivedState } from '../simulation/WorldState';
+import type { AutopilotState, AircraftDerivedState, NavigationState } from '../simulation/WorldState';
 
-const normalPitchUpRatio = 0.28;
+const normalPitchUpRatio = 0.42;
 const maxPitchDownRatio = 0.16;
 const climbRateFromPitch = 0.3;
-const verticalSpeedGain = 0.08;
+const verticalSpeedGain = 0.12;
 
 export class AutopilotSystem {
   update(
     input: PlayerInput,
     state: AutopilotState,
+    navigation: NavigationState,
+    position: Vec3,
     derived: AircraftDerivedState,
     angularVelocityBody: Vec3,
     dt: number,
@@ -46,14 +48,43 @@ export class AutopilotSystem {
       }
     }
 
-    state.mode = 'climb';
+    state.mode = navigation.waypoints.length > navigation.activeIndex ? 'nav' : 'climb';
+    const pitchProtection = Math.max(
+      smoothstep(degToRad(9), degToRad(13), derived.angleOfAttack),
+      smoothstep(degToRad(10), degToRad(16), derived.pitch),
+    );
+    const pitchTargetInput = input.pitch > 0 ? input.pitch * (1 - pitchProtection) : input.pitch;
     state.targetPitch = clamp(
-      state.targetPitch + input.pitch * config.autopilot.pitchAdjustRateRadPerSec * dt,
+      state.targetPitch + pitchTargetInput * config.autopilot.pitchAdjustRateRadPerSec * dt,
       config.autopilot.minPitchRad,
       config.autopilot.maxPitchRad,
     );
 
-    if (Math.abs(input.roll) > 0.03) {
+    const activeWaypoint = navigation.waypoints[navigation.activeIndex];
+    if (state.mode === 'nav' && activeWaypoint) {
+      const dx = activeWaypoint.x - position.x;
+      const dz = activeWaypoint.z - position.z;
+      const distance = Math.hypot(dx, dz);
+      if (distance <= config.autopilot.waypointRadius) {
+        navigation.activeIndex += 1;
+        navigation.reachedCount += 1;
+        if (navigation.activeIndex >= navigation.waypoints.length) {
+          state.mode = 'climb';
+        }
+      }
+    }
+
+    const waypoint = navigation.waypoints[navigation.activeIndex];
+    if (state.mode === 'nav' && waypoint) {
+      const targetHeading = Math.atan2(waypoint.x - position.x, waypoint.z - position.z);
+      const headingError = shortestAngleRad(targetHeading, degToRad(derived.heading));
+      state.targetHeading = targetHeading;
+      state.targetRoll = clamp(
+        headingError * config.autopilot.headingKp + input.roll * 0.3,
+        -config.autopilot.maxRollRad,
+        config.autopilot.maxRollRad,
+      );
+    } else if (Math.abs(input.roll) > 0.03) {
       state.targetRoll = clamp(
         state.targetRoll + input.roll * config.autopilot.rollAdjustRateRadPerSec * dt,
         -config.autopilot.maxRollRad,
@@ -74,9 +105,10 @@ export class AutopilotSystem {
     );
     const descentT = clamp((-derived.verticalSpeed - 0.8) / 1.8, 0, 1);
     const maxPitchUpCommand = config.autopilot.maxPitchCommand *
-      (normalPitchUpRatio + (1 - normalPitchUpRatio) * descentT);
+      (normalPitchUpRatio + (1 - normalPitchUpRatio) * descentT) *
+      (1 - pitchProtection * 0.85);
     const pitchCommand = clamp(
-      (state.targetPitch - derived.pitch) * config.autopilot.pitchKp -
+      (state.targetPitch - derived.pitch) * config.autopilot.pitchKp +
         angularVelocityBody.x * config.autopilot.pitchKd +
         (targetVerticalSpeed - derived.verticalSpeed) * verticalSpeedGain,
       -config.autopilot.maxPitchCommand * maxPitchDownRatio,
@@ -95,4 +127,12 @@ export class AutopilotSystem {
       roll: rollCommand,
     };
   }
+}
+
+function degToRad(value: number): number {
+  return (value * Math.PI) / 180;
+}
+
+function shortestAngleRad(target: number, current: number): number {
+  return ((((target - current) % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
 }

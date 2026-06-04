@@ -29,10 +29,10 @@ describe('standard MVP flight cards', () => {
     const world = new World(defaultAircraftConfig);
     let wasAirborne = false;
 
-    runFor(world, 28, () => {
+    runFor(world, 45, () => {
       const airspeed = world.state.aircraft.derived.airspeed;
-      const pitch = airspeed > 31 ? 0.28 : 0;
-      const flap = airspeed > 28 ? 0.18 : 0;
+      const pitch = airspeed > 55 ? 0.25 : 0;
+      const flap = airspeed > 35 ? 0.35 : 0;
       if (!world.state.aircraft.derived.isGrounded && world.state.aircraft.derived.altitude > 2) {
         wasAirborne = true;
       }

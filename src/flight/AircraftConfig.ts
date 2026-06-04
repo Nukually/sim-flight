@@ -35,9 +35,13 @@ export type AircraftConfig = {
     Cnr: number;
   };
   engine: {
+    engineCount: number;
     maxThrust: number;
     engineTimeConstant: number;
     maxEffectiveAirspeed: number;
+    thrustLapseAtMaxSpeed: number;
+    idleRpm: number;
+    maxRpm: number;
   };
   surfaces: {
     elevatorMaxRad: number;
@@ -81,6 +85,8 @@ export type AircraftConfig = {
     minPitchRad: number;
     maxPitchRad: number;
     maxRollRad: number;
+    waypointRadius: number;
+    headingKp: number;
     pitchAdjustRateRadPerSec: number;
     rollAdjustRateRadPerSec: number;
     rollReturnRateRadPerSec: number;

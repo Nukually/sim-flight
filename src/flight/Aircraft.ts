@@ -21,7 +21,7 @@ export function createInitialAircraft(config: AircraftConfig, mode: MissionMode)
       },
       engine: {
         throttle: 0.52,
-        rpm: 1700,
+        rpm: config.engine.idleRpm,
         thrust: 0,
       },
       landingGear: {
@@ -49,7 +49,7 @@ export function createInitialAircraft(config: AircraftConfig, mode: MissionMode)
     },
     engine: {
       throttle: 0,
-      rpm: 800,
+      rpm: config.engine.idleRpm,
       thrust: 0,
     },
     landingGear: {
@@ -97,7 +97,13 @@ export function createWorldState(config: AircraftConfig, mode: MissionMode = 'fr
       active: false,
       targetPitch: config.autopilot.defaultClimbPitchRad,
       targetRoll: 0,
+      targetHeading: 0,
       mode: 'armed',
+    },
+    navigation: {
+      waypoints: [],
+      activeIndex: 0,
+      reachedCount: 0,
     },
   };
 }

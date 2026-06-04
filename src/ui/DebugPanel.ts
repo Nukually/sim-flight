@@ -15,7 +15,7 @@ export class DebugPanel {
     this.gui.hide();
 
     const aircraft = this.gui.addFolder('Aircraft');
-    aircraft.add(this.config, 'mass', 700, 1500, 5).onChange(() => this.emit(onChange));
+    aircraft.add(this.config, 'mass', 2500, 9000, 25).onChange(() => this.emit(onChange));
 
     const lift = this.gui.addFolder('Aero / Lift');
     lift.add(this.config.aero, 'CL0', -0.2, 0.6, 0.01).onChange(() => this.emit(onChange));
@@ -65,16 +65,20 @@ export class DebugPanel {
     assist.add(this.config.control, 'sideSlipAssist', 0, 1.5, 0.02).onChange(() => this.emit(onChange));
 
     const autopilot = this.gui.addFolder('Control / Autopilot');
-    autopilot.add(this.config.autopilot, 'engageAirspeed', 16, 40, 0.5).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'engageAirspeed', 28, 80, 0.5).onChange(() => this.emit(onChange));
     autopilot.add(this.config.autopilot, 'engageAltitude', 0.5, 20, 0.5).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'waypointRadius', 30, 500, 5).onChange(() => this.emit(onChange));
+    autopilot.add(this.config.autopilot, 'headingKp', 0.2, 2.5, 0.05).onChange(() => this.emit(onChange));
     autopilot.add(this.config.autopilot, 'pitchKp', 0.5, 5, 0.05).onChange(() => this.emit(onChange));
     autopilot.add(this.config.autopilot, 'pitchKd', 0, 3, 0.05).onChange(() => this.emit(onChange));
     autopilot.add(this.config.autopilot, 'rollKp', 0.5, 4, 0.05).onChange(() => this.emit(onChange));
     autopilot.add(this.config.autopilot, 'rollKd', 0, 2, 0.05).onChange(() => this.emit(onChange));
 
     const engine = this.gui.addFolder('Engine');
-    engine.add(this.config.engine, 'maxThrust', 2000, 6500, 50).onChange(() => this.emit(onChange));
-    engine.add(this.config.engine, 'engineTimeConstant', 0.1, 2.5, 0.05).onChange(() => this.emit(onChange));
+    engine.add(this.config.engine, 'engineCount', 1, 4, 1).onChange(() => this.emit(onChange));
+    engine.add(this.config.engine, 'maxThrust', 8000, 50000, 100).onChange(() => this.emit(onChange));
+    engine.add(this.config.engine, 'engineTimeConstant', 0.2, 4, 0.05).onChange(() => this.emit(onChange));
+    engine.add(this.config.engine, 'thrustLapseAtMaxSpeed', 0.35, 0.9, 0.01).onChange(() => this.emit(onChange));
 
     const wind = this.gui.addFolder('Environment / Wind');
     wind.add(this.config.environment, 'windX', -12, 12, 0.1).name('Wind X').onChange(() => this.emit(onChange));

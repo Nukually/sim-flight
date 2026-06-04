@@ -100,7 +100,20 @@ export type AutopilotState = {
   active: boolean;
   targetPitch: number;
   targetRoll: number;
-  mode: 'off' | 'armed' | 'climb';
+  targetHeading: number;
+  mode: 'off' | 'armed' | 'climb' | 'nav';
+};
+
+export type Waypoint = {
+  x: number;
+  z: number;
+  label: string;
+};
+
+export type NavigationState = {
+  waypoints: Waypoint[];
+  activeIndex: number;
+  reachedCount: number;
 };
 
 export type WorldState = {
@@ -112,6 +125,7 @@ export type WorldState = {
   ground: GroundState;
   mission: MissionState;
   autopilot: AutopilotState;
+  navigation: NavigationState;
 };
 
 export function cloneWorldState(state: WorldState): WorldState {

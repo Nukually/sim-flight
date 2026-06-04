@@ -71,11 +71,11 @@ export class Hud {
     );
     this.set(
       'autopilot',
-      `${state.autopilot.mode.toUpperCase()} ${radToDeg(state.autopilot.targetPitch).toFixed(0)} deg`,
+      autopilotText(state),
     );
     this.set(
       'power',
-      `${(aircraft.engine.throttle * 100).toFixed(0)}% ${aircraft.engine.rpm.toFixed(0)} rpm`,
+      `${(aircraft.engine.throttle * 100).toFixed(0)}% N1 ${aircraft.engine.rpm.toFixed(0)}`,
     );
     this.set(
       'trim',
@@ -135,7 +135,7 @@ export class DebugOverlay {
       row('Thrust / Weight', `${f.thrust.toFixed(0)} / ${f.weight.toFixed(0)} N`),
       row(
         'Autopilot',
-        `${state.autopilot.mode} pitch ${radToDeg(state.autopilot.targetPitch).toFixed(1)} roll ${radToDeg(state.autopilot.targetRoll).toFixed(1)}`,
+        `${state.autopilot.mode} pitch ${radToDeg(state.autopilot.targetPitch).toFixed(1)} roll ${radToDeg(state.autopilot.targetRoll).toFixed(1)} ${activeWaypointText(state)}`,
       ),
       row(
         'Angular vel',
@@ -148,6 +148,19 @@ export class DebugOverlay {
   setVisible(visible: boolean): void {
     this.root.classList.toggle('hidden', !visible);
   }
+}
+
+function autopilotText(state: WorldState): string {
+  const waypoint = state.navigation.waypoints[state.navigation.activeIndex];
+  if (state.autopilot.mode === 'nav' && waypoint) {
+    return `NAV ${waypoint.label}`;
+  }
+  return `${state.autopilot.mode.toUpperCase()} ${radToDeg(state.autopilot.targetPitch).toFixed(0)} deg`;
+}
+
+function activeWaypointText(state: WorldState): string {
+  const waypoint = state.navigation.waypoints[state.navigation.activeIndex];
+  return waypoint ? `wp ${waypoint.label}` : 'wp none';
 }
 
 function row(label: string, value: string): HTMLDivElement {
